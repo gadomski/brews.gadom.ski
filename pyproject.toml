@@ -1,0 +1,30 @@
+[project]
+name = "brews"
+version = "0.0.0"
+description = "Shoes and Brews beer list"
+readme = "README.md"
+authors = [
+    { name = "Pete Gadomski", email = "pete.gadomski@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "anthropic>=0.111.0",
+    "fastapi>=0.138.0",
+    "httpx2>=2.4.0",
+    "pydantic>=2.13.4",
+    "python-multipart>=0.0.32",
+    "uvicorn>=0.49.0",
+]
+
+[project.scripts]
+brews = "brews:main"
+
+[build-system]
+requires = ["uv_build>=0.11.23,<0.12.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.1.1",
+]
