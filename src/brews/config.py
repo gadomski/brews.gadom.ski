@@ -26,3 +26,8 @@ def get_anthropic_api_key() -> str | None:
 def get_upload_token() -> str | None:
     """Return the upload token from SSM if configured, else from the environment."""
     return _resolve("UPLOAD_TOKEN_PARAM", "BREWS_UPLOAD_TOKEN")
+
+
+def get_bucket_name() -> str:
+    """Return the S3 bucket name for uploaded images from the environment."""
+    return os.environ["BREWS_BUCKET_NAME"]

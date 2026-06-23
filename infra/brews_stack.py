@@ -6,6 +6,7 @@ from aws_cdk import aws_apigatewayv2_integrations as integrations
 from aws_cdk import aws_dynamodb as dynamodb
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_lambda as lambda_
+from aws_cdk import aws_s3 as s3
 from constructs import Construct
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -26,6 +27,22 @@ class BrewsStack(Stack):
             billing=dynamodb.Billing.on_demand(),
         )
 
+        bucket = s3.Bucket(
+            self,
+            "ImageBucket",
+            cors=[
+                s3.CorsRule(
+                    allowed_methods=[s3.HttpMethods.PUT],
+                    allowed_origins=[
+                        "https://brews.gadom.ski",
+                        "http://localhost:5173",
+                    ],
+                    allowed_headers=["*"],
+                    max_age=3000,
+                )
+            ],
+        )
+
         function = lambda_.Function(
             self,
             "ApiFunction",
@@ -36,6 +53,7 @@ class BrewsStack(Stack):
             memory_size=512,
             environment={
                 "BREWS_TABLE_NAME": table.table_name,
+                "BREWS_BUCKET_NAME": bucket.bucket_name,
                 "ANTHROPIC_API_KEY_PARAM": "/brews/anthropic-api-key",
                 "UPLOAD_TOKEN_PARAM": "/brews/upload-token",
             },
@@ -61,6 +79,7 @@ class BrewsStack(Stack):
         )
 
         table.grant_read_write_data(function)
+        bucket.grant_read_write(function)
 
         function.add_to_role_policy(
             iam.PolicyStatement(

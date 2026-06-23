@@ -33,3 +33,8 @@ def test_anthropic_key_from_ssm(monkeypatch):
     )
     monkeypatch.setenv("ANTHROPIC_API_KEY_PARAM", "/brews/anthropic-api-key")
     assert config.get_anthropic_api_key() == "sk-secret"
+
+
+def test_bucket_name_from_env(monkeypatch):
+    monkeypatch.setenv("BREWS_BUCKET_NAME", "brews-images")
+    assert config.get_bucket_name() == "brews-images"

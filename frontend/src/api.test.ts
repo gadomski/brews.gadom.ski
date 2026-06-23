@@ -16,20 +16,56 @@ describe("api", () => {
     expect(fetchMock).toHaveBeenCalledWith("/api/beers");
   });
 
-  it("uploadBeerPhoto calls /api/beers/upload with POST", async () => {
-    const fetchMock = vi.fn(
-      async () => new Response(JSON.stringify([]), { status: 200 }),
-    );
+  it("uploadBeerPhoto requests a URL, PUTs to S3, then processes", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            url: "https://s3.example.com/up",
+            key: "uploads/abc",
+          }),
+          { status: 200 },
+        ),
+      )
+      .mockResolvedValueOnce(new Response(null, { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify([{ name: "Pils" }]), { status: 200 }),
+      );
     vi.stubGlobal("fetch", fetchMock);
     const file = new File(["test"], "test.jpg", { type: "image/jpeg" });
-    await uploadBeerPhoto(file, "test-token");
-    expect(fetchMock).toHaveBeenCalledWith(
-      "/api/beers/upload",
-      expect.any(Object),
-    );
-    const call = fetchMock.mock.calls[0];
-    expect(call[1]?.method).toBe("POST");
-    expect(call[1]?.headers).toEqual({ "X-Upload-Token": "test-token" });
+
+    const beers = await uploadBeerPhoto(file, "test-token");
+
+    expect(beers).toEqual([{ name: "Pils" }]);
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/beers/upload-url");
+    expect(fetchMock.mock.calls[0][1]?.method).toBe("POST");
+    expect(fetchMock.mock.calls[1][0]).toBe("https://s3.example.com/up");
+    expect(fetchMock.mock.calls[1][1]?.method).toBe("PUT");
+    expect(fetchMock.mock.calls[2][0]).toBe("/api/beers/process");
+    expect(JSON.parse(fetchMock.mock.calls[2][1]?.body as string)).toEqual({
+      key: "uploads/abc",
+    });
+  });
+
+  it("uploadBeerPhoto throws when the S3 PUT fails", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            url: "https://s3.example.com/up",
+            key: "uploads/abc",
+          }),
+          { status: 200 },
+        ),
+      )
+      .mockResolvedValueOnce(new Response(null, { status: 403 }));
+    vi.stubGlobal("fetch", fetchMock);
+    const file = new File(["test"], "test.jpg", { type: "image/jpeg" });
+
+    await expect(uploadBeerPhoto(file, "test-token")).rejects.toThrow();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it("fetchBeers throws error on non-ok response", async () => {
