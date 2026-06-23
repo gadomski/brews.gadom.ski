@@ -33,3 +33,17 @@ def test_get_image_round_trips_bytes(bucket):
 def test_get_image_raises_for_missing_object(bucket):
     with pytest.raises(ClientError):
         storage.get_image("uploads/missing")
+
+
+def test_create_upload_url_is_sigv4_and_regional(monkeypatch):
+    monkeypatch.setenv("AWS_DEFAULT_REGION", "us-west-2")
+    monkeypatch.setenv("BREWS_BUCKET_NAME", "brews-images")
+    with mock_aws():
+        boto3.client("s3", region_name="us-west-2").create_bucket(
+            Bucket="brews-images",
+            CreateBucketConfiguration={"LocationConstraint": "us-west-2"},
+        )
+        url, _ = storage.create_upload_url("image/jpeg")
+    assert "X-Amz-Algorithm=AWS4-HMAC-SHA256" in url
+    assert "AWSAccessKeyId" not in url
+    assert "brews-images.s3.us-west-2.amazonaws.com" in url
