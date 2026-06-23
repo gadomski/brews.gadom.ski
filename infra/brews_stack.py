@@ -30,6 +30,7 @@ class BrewsStack(Stack):
             self,
             "ApiFunction",
             runtime=lambda_.Runtime.PYTHON_3_13,
+            architecture=lambda_.Architecture.ARM_64,
             handler="brews.app.handler",
             timeout=Duration.seconds(30),
             memory_size=512,
@@ -53,6 +54,7 @@ class BrewsStack(Stack):
                 ],
                 bundling=BundlingOptions(
                     image=lambda_.Runtime.PYTHON_3_13.bundling_image,
+                    platform="linux/arm64",
                     command=["bash", "-c", "pip install . --target /asset-output"],
                 ),
             ),

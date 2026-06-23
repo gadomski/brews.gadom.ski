@@ -36,3 +36,9 @@ def test_lambda_env_vars():
             }
         },
     )
+
+
+def test_lambda_architecture_is_arm64():
+    _template().has_resource_properties(
+        "AWS::Lambda::Function", {"Architectures": ["arm64"]}
+    )
