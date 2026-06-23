@@ -3,6 +3,7 @@ import {
   Alert,
   Box,
   Button,
+  Center,
   Container,
   Heading,
   HStack,
@@ -11,6 +12,19 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { fetchBeers, uploadBeerPhoto, type Beer } from "./api";
+import { BrewsIcon } from "./BrewsIcon";
+
+const CHALK = "#f3eede";
+const CHALK_MUTED = "#b9c6bd";
+
+const chalkboard = {
+  bg: "#14181a",
+  color: CHALK,
+  borderRadius: "lg",
+  borderWidth: "2px",
+  borderColor: "#000000",
+  shadow: "lg",
+};
 
 export default function App() {
   const [beers, setBeers] = useState<Beer[]>([]);
@@ -44,23 +58,33 @@ export default function App() {
 
   return (
     <Container maxW="2xl" py="8">
-      <Heading mb="6">Shoes &amp; Brews</Heading>
-
-      {error && (
-        <Alert.Root status="error" mb="4">
-          <Alert.Indicator />
-          <Alert.Title>{error}</Alert.Title>
-        </Alert.Root>
-      )}
+      <Center mb="6">
+        <HStack gap="3">
+          <BrewsIcon boxSize="14" />
+          <Heading
+            fontSize="6xl"
+            fontWeight="700"
+            lineHeight="1"
+            color={CHALK}
+            textShadow="0 1px 3px rgba(0,0,0,0.45)"
+          >
+            Shoes &amp; Brews
+          </Heading>
+        </HStack>
+      </Center>
 
       <Stack gap="4" mb="8">
         {beers.length === 0 && (
-          <Text color="fg.muted">No beers on the list yet.</Text>
+          <Text color={CHALK} textShadow="0 1px 2px rgba(0,0,0,0.45)">
+            No beers on the list yet.
+          </Text>
         )}
         {beers.map((beer, index) => (
-          <Box key={index} borderWidth="1px" borderRadius="md" p="4">
-            <Text fontWeight="bold">{beer.name}</Text>
-            <Text color="fg.muted">
+          <Box key={index} {...chalkboard} fontFamily="heading" p="4">
+            <Text fontWeight="bold" fontSize="2xl" lineHeight="1.1">
+              {beer.name}
+            </Text>
+            <Text color={CHALK_MUTED} fontSize="lg" lineHeight="1.2">
               {[
                 beer.brewery,
                 beer.style,
@@ -74,23 +98,41 @@ export default function App() {
         ))}
       </Stack>
 
-      <Heading size="md" mb="3">
-        Update the list
-      </Heading>
-      <Stack gap="3">
-        <Input type="file" accept="image/*" ref={fileRef} p="1" />
-        <Input
-          type="password"
-          placeholder="Upload token"
-          value={token}
-          onChange={(event) => setToken(event.target.value)}
-        />
-        <HStack>
-          <Button onClick={handleUpload} loading={busy} disabled={!token}>
-            Upload photo
-          </Button>
-        </HStack>
-      </Stack>
+      {error && (
+        <Alert.Root status="error" mb="4">
+          <Alert.Indicator />
+          <Alert.Title>{error}</Alert.Title>
+        </Alert.Root>
+      )}
+
+      <Box {...chalkboard} p="5">
+        <Heading fontSize="3xl" fontWeight="700" mb="2" color={CHALK}>
+          Update the list
+        </Heading>
+        <Stack gap="3">
+          <Input
+            type="file"
+            accept="image/*"
+            ref={fileRef}
+            p="1"
+            bg="bg.panel"
+            color="fg"
+          />
+          <Input
+            type="password"
+            placeholder="Upload token"
+            value={token}
+            onChange={(event) => setToken(event.target.value)}
+            bg="bg.panel"
+            color="fg"
+          />
+          <HStack>
+            <Button onClick={handleUpload} loading={busy} disabled={!token}>
+              Upload photo
+            </Button>
+          </HStack>
+        </Stack>
+      </Box>
     </Container>
   );
 }
