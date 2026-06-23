@@ -6,8 +6,13 @@ export interface Beer {
   price: string | null
 }
 
+function apiUrl(path: string): string {
+  const base = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "")
+  return `${base}${path}`
+}
+
 export async function fetchBeers(): Promise<Beer[]> {
-  const response = await fetch("/api/beers")
+  const response = await fetch(apiUrl("/api/beers"))
   if (!response.ok) {
     throw new Error("Failed to load the beer list")
   }
@@ -17,7 +22,7 @@ export async function fetchBeers(): Promise<Beer[]> {
 export async function uploadBeerPhoto(file: File, token: string): Promise<Beer[]> {
   const body = new FormData()
   body.append("file", file)
-  const response = await fetch("/api/beers/upload", {
+  const response = await fetch(apiUrl("/api/beers/upload"), {
     method: "POST",
     headers: { "X-Upload-Token": token },
     body,

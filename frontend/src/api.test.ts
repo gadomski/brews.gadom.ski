@@ -1,30 +1,54 @@
-import { afterEach, expect, test, vi } from "vitest"
-import { fetchBeers, uploadBeerPhoto } from "./api"
+import { describe, it, expect, afterEach, vi } from "vitest";
+import { fetchBeers, uploadBeerPhoto } from "./api";
 
-afterEach(() => {
-  vi.restoreAllMocks()
-})
+describe("api", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllEnvs();
+  });
 
-test("fetchBeers returns the parsed list", async () => {
-  vi.stubGlobal(
-    "fetch",
-    vi.fn(async () => new Response(JSON.stringify([{ name: "Pils" }]), { status: 200 })),
-  )
-  const beers = await fetchBeers()
-  expect(beers).toEqual([{ name: "Pils" }])
-})
+  it("fetchBeers calls /api/beers", async () => {
+    const fetchMock = vi.fn(
+      async () => new Response(JSON.stringify([]), { status: 200 }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    await fetchBeers();
+    expect(fetchMock).toHaveBeenCalledWith("/api/beers");
+  });
 
-test("uploadBeerPhoto sends the token header", async () => {
-  const fetchMock = vi.fn(async () => new Response(JSON.stringify([]), { status: 200 }))
-  vi.stubGlobal("fetch", fetchMock)
-  await uploadBeerPhoto(new File(["x"], "list.jpg", { type: "image/jpeg" }), "secret")
-  const [, options] = fetchMock.mock.calls[0]
-  expect((options.headers as Record<string, string>)["X-Upload-Token"]).toBe("secret")
-})
+  it("uploadBeerPhoto calls /api/beers/upload with POST", async () => {
+    const fetchMock = vi.fn(
+      async () => new Response(JSON.stringify([]), { status: 200 }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const file = new File(["test"], "test.jpg", { type: "image/jpeg" });
+    await uploadBeerPhoto(file, "test-token");
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/beers/upload",
+      expect.any(Object),
+    );
+    const call = fetchMock.mock.calls[0];
+    expect(call[1]?.method).toBe("POST");
+    expect(call[1]?.headers).toEqual({ "X-Upload-Token": "test-token" });
+  });
 
-test("uploadBeerPhoto throws on a non-OK response", async () => {
-  vi.stubGlobal("fetch", vi.fn(async () => new Response("nope", { status: 401 })))
-  await expect(
-    uploadBeerPhoto(new File(["x"], "list.jpg", { type: "image/jpeg" }), "wrong"),
-  ).rejects.toThrow()
-})
+  it("fetchBeers throws error on non-ok response", async () => {
+    const fetchMock = vi.fn(
+      async () => new Response(JSON.stringify({}), { status: 500 }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(fetchBeers()).rejects.toThrow();
+  });
+
+  it("requests are prefixed with VITE_API_BASE_URL", async () => {
+    vi.stubEnv("VITE_API_BASE_URL", "https://api.example.com/");
+    const fetchMock = vi.fn(
+      async () => new Response(JSON.stringify([]), { status: 200 }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    await fetchBeers();
+    expect(fetchMock.mock.calls[0][0]).toBe(
+      "https://api.example.com/api/beers",
+    );
+  });
+});

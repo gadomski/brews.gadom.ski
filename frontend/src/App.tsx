@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react";
 import {
   Alert,
   Box,
@@ -9,36 +9,36 @@ import {
   Input,
   Stack,
   Text,
-} from "@chakra-ui/react"
-import { fetchBeers, uploadBeerPhoto, type Beer } from "./api"
+} from "@chakra-ui/react";
+import { fetchBeers, uploadBeerPhoto, type Beer } from "./api";
 
 export default function App() {
-  const [beers, setBeers] = useState<Beer[]>([])
-  const [token, setToken] = useState("")
-  const [error, setError] = useState<string | null>(null)
-  const [busy, setBusy] = useState(false)
-  const fileRef = useRef<HTMLInputElement>(null)
+  const [beers, setBeers] = useState<Beer[]>([]);
+  const [token, setToken] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchBeers()
       .then(setBeers)
-      .catch((caught: Error) => setError(caught.message))
-  }, [])
+      .catch((caught: Error) => setError(caught.message));
+  }, []);
 
   async function handleUpload() {
-    const file = fileRef.current?.files?.[0]
+    const file = fileRef.current?.files?.[0];
     if (!file) {
-      setError("Choose a photo first")
-      return
+      setError("Choose a photo first");
+      return;
     }
-    setBusy(true)
-    setError(null)
+    setBusy(true);
+    setError(null);
     try {
-      setBeers(await uploadBeerPhoto(file, token))
+      setBeers(await uploadBeerPhoto(file, token));
     } catch (caught) {
-      setError((caught as Error).message)
+      setError((caught as Error).message);
     } finally {
-      setBusy(false)
+      setBusy(false);
     }
   }
 
@@ -54,12 +54,19 @@ export default function App() {
       )}
 
       <Stack gap="4" mb="8">
-        {beers.length === 0 && <Text color="fg.muted">No beers on the list yet.</Text>}
+        {beers.length === 0 && (
+          <Text color="fg.muted">No beers on the list yet.</Text>
+        )}
         {beers.map((beer, index) => (
           <Box key={index} borderWidth="1px" borderRadius="md" p="4">
             <Text fontWeight="bold">{beer.name}</Text>
             <Text color="fg.muted">
-              {[beer.brewery, beer.style, beer.abv ? `${beer.abv}%` : null, beer.price]
+              {[
+                beer.brewery,
+                beer.style,
+                beer.abv ? `${beer.abv}%` : null,
+                beer.price,
+              ]
                 .filter(Boolean)
                 .join(" · ")}
             </Text>
@@ -85,5 +92,5 @@ export default function App() {
         </HStack>
       </Stack>
     </Container>
-  )
+  );
 }

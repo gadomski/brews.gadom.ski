@@ -1,21 +1,18 @@
-import os
-from contextlib import asynccontextmanager
-from pathlib import Path
-
 from fastapi import FastAPI, File, Header, HTTPException, UploadFile
-from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+from mangum import Mangum
 
-from brews import db, extract
+from brews import config, db, extract
 from brews.models import Beer
 
+app = FastAPI()
 
-@asynccontextmanager
-async def _lifespan(app: FastAPI):
-    db.init_db()
-    yield
-
-
-app = FastAPI(lifespan=_lifespan)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://brews.gadom.ski", "http://localhost:5173"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["X-Upload-Token", "Content-Type"],
+)
 
 
 @app.get("/api/beers")
@@ -30,7 +27,7 @@ async def upload_beers(
     x_upload_token: str | None = Header(default=None),
 ) -> list[Beer]:
     """Replace the beer list from an uploaded photo. Requires the upload token."""
-    expected = os.environ.get("BREWS_UPLOAD_TOKEN")
+    expected = config.get_upload_token()
     if not expected or x_upload_token != expected:
         raise HTTPException(status_code=401)
     if not (file.content_type or "").startswith("image/"):
@@ -46,6 +43,4 @@ async def upload_beers(
     return db.list_beers()
 
 
-_frontend_dist = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
-if _frontend_dist.is_dir():
-    app.mount("/", StaticFiles(directory=_frontend_dist, html=True), name="frontend")
+handler = Mangum(app)
