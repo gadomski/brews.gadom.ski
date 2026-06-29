@@ -11,3 +11,4 @@ wheels/
 
 # Local SQLite database
 *.db
+.env
