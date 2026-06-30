@@ -1,4 +1,4 @@
-import { Icon, type IconProps } from '@chakra-ui/react'
+import { Icon, type IconProps } from "@chakra-ui/react";
 
 export function BrewsIcon(props: IconProps) {
   return (
@@ -41,5 +41,5 @@ export function BrewsIcon(props: IconProps) {
         </g>
       </svg>
     </Icon>
-  )
+  );
 }

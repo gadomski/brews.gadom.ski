@@ -1,0 +1,19 @@
+[project]
+name = "brews-infra"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Pete Gadomski", email = "pete.gadomski@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "aws-cdk-lib>=2.260.0",
+]
+
+[project.scripts]
+infra = "infra:main"
+
+[build-system]
+requires = ["uv_build>=0.11.25,<0.12.0"]
+build-backend = "uv_build"

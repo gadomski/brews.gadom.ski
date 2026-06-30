@@ -13,9 +13,7 @@ _EXPIRES_IN = 900
 
 
 def _config(addressing_style: str) -> Config:
-    return Config(
-        signature_version="s3v4", s3={"addressing_style": addressing_style}
-    )
+    return Config(signature_version="s3v4", s3={"addressing_style": addressing_style})
 
 
 @functools.cache
@@ -28,9 +26,7 @@ def _client() -> S3Client:
 def _presign_client(public_endpoint: str | None) -> S3Client:
     if public_endpoint is None:
         return _client()
-    return boto3.client(
-        "s3", endpoint_url=public_endpoint, config=_config("path")
-    )
+    return boto3.client("s3", endpoint_url=public_endpoint, config=_config("path"))
 
 
 def create_upload_url(content_type: str, settings: Settings) -> UploadUrlResponse:
