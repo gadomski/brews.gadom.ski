@@ -44,7 +44,7 @@ importers:
         version: 19.2.3(@types/react@19.2.17)
       '@vitejs/plugin-react':
         specifier: ^6.0.3
-        version: 6.0.3(vite@8.1.1(@types/node@24.13.2))
+        version: 6.0.3(vite@8.1.2(@types/node@24.13.2))
       openapi-typescript:
         specifier: ^7.13.0
         version: 7.13.0(typescript@6.0.3)
@@ -58,8 +58,8 @@ importers:
         specifier: ~6.0.2
         version: 6.0.3
       vite:
-        specifier: ^8.1.1
-        version: 8.1.1(@types/node@24.13.2)
+        specifier: ^8.1.2
+        version: 8.1.2(@types/node@24.13.2)
 
 packages:
 
@@ -1135,8 +1135,8 @@ packages:
   uri-js-replace@1.0.1:
     resolution: {integrity: sha512-W+C9NWNLFOoBI2QWDp4UT9pv65r2w5Cx+3sTYFvtMdDBxkKt1syCqsUdSFAChbEe1uK5TfS04wt/nGwmaeIQ0g==}
 
-  vite@8.1.1:
-    resolution: {integrity: sha512-X/05/cT+VITy2AeDc1der6smvGWWREtL4hPbPTaVbjSBuuWkmNOjR6HP3NzqcQA2nF6VHGUPaFRJyft/2AE9Kg==}
+  vite@8.1.2:
+    resolution: {integrity: sha512-6YYPbRXTxx6bRXmOn7XdnQAy5DQNHhDgtjhDHI13oe4pY93kkcdGJWxpGwOm++/Wh0QpQhDrpIoVMrmrsI5AGQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -1635,10 +1635,10 @@ snapshots:
     dependencies:
       csstype: 3.2.3
 
-  '@vitejs/plugin-react@6.0.3(vite@8.1.1(@types/node@24.13.2))':
+  '@vitejs/plugin-react@6.0.3(vite@8.1.2(@types/node@24.13.2))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
-      vite: 8.1.1(@types/node@24.13.2)
+      vite: 8.1.2(@types/node@24.13.2)
 
   '@zag-js/accordion@1.41.2':
     dependencies:
@@ -2542,7 +2542,7 @@ snapshots:
 
   uri-js-replace@1.0.1: {}
 
-  vite@8.1.1(@types/node@24.13.2):
+  vite@8.1.2(@types/node@24.13.2):
     dependencies:
       lightningcss: 1.32.0
       picomatch: 4.0.4
