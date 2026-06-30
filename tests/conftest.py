@@ -17,7 +17,7 @@ from brews.settings import Settings
 @pytest.fixture(autouse=True)
 def aws_environment(monkeypatch: MonkeyPatch) -> None:
     defaults = {
-        "AWS_ENDPOINT_URL_DYNAMODB": "http://localhost:8000",
+        "AWS_ENDPOINT_URL_DYNAMODB": "http://localhost:8001",
         "AWS_ENDPOINT_URL_S3": "http://localhost:5000",
         "AWS_ACCESS_KEY_ID": "local",
         "AWS_SECRET_ACCESS_KEY": "local",
@@ -31,6 +31,7 @@ def aws_environment(monkeypatch: MonkeyPatch) -> None:
 @pytest.fixture
 def settings() -> Iterator[Settings]:
     settings = Settings(
+        image_bucket_name="brews-images-test",
         table_name="brews-test",
         upload_token=SecretStr("icanhasbeerz"),
         anthropic_api_key=SecretStr("dummy-value"),

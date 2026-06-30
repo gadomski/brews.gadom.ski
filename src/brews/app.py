@@ -23,8 +23,11 @@ def create(settings: Settings | None = None) -> FastAPI:
         CORSMiddleware,
         allow_origins=["https://brews.gadom.ski", "http://localhost:5173"],
         allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type"],
     )
 
+    app.add_api_route("/health", routes.get_health, methods=["GET"])
+    app.add_api_route("/validate-token", routes.get_validate_token, methods=["GET"])
     app.add_api_route("/beers", routes.get_beers, methods=["GET"])
     app.add_api_route(
         "/beers/upload-url", routes.post_beers_upload_url, methods=["POST"]

@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     table_name: str = "brews"
     upload_token: SecretStr
     anthropic_api_key: SecretStr
+    s3_public_endpoint: str | None = None
 
     model_config = SettingsConfigDict(
         env_prefix="BREWS_", env_file=".env", extra="allow"

@@ -22,9 +22,22 @@ def validate_token(
         raise HTTPException(status_code=401)
 
 
+def get_health() -> dict[str, str]:
+    """Returns the service health status."""
+    return {"status": "ok"}
+
+
 def get_beers(settings: Annotated[Settings, Depends(get_settings)]) -> list[Beer]:
     """Returns all current beers list."""
     return db.get_beers(settings)
+
+
+def get_validate_token(
+    token: str, settings: Annotated[Settings, Depends(get_settings)]
+) -> dict[str, str]:
+    if token != settings.upload_token.get_secret_value():
+        raise HTTPException(status_code=401)
+    return {"status": "ok"}
 
 
 def post_beers_upload_url(
