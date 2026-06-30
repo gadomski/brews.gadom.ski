@@ -1,26 +1,37 @@
+import functools
 import json
-import os
+from typing import cast
 
 import boto3
+from types_boto3_dynamodb.service_resource import DynamoDBServiceResource, Table
 
-from brews.models import Beer
-
-_PARTITION_VALUE = "current"
-
-
-def _table():
-    return boto3.resource("dynamodb").Table(os.environ["BREWS_TABLE_NAME"])
+from .models import Beer
+from .settings import Settings
 
 
-def list_beers() -> list[Beer]:
-    """Return the current beer list, or an empty list if none is stored."""
-    item = _table().get_item(Key={"pk": _PARTITION_VALUE}).get("Item")
-    if not item:
+@functools.cache
+def _resource() -> DynamoDBServiceResource:
+    return boto3.resource("dynamodb")
+
+
+def _table(settings: Settings) -> Table:
+    return _resource().Table(settings.table_name)
+
+
+def get_beers(settings: Settings) -> list[Beer]:
+    item = _table(settings).get_item(Key={"pk": "current"}).get("Item")
+    if item:
+        return [
+            Beer.model_validate(beer) for beer in json.loads(cast(str, item["beers"]))
+        ]
+    else:
         return []
-    return [Beer(**beer) for beer in json.loads(item["beers"])]
 
 
-def replace_beers(beers: list[Beer]) -> None:
-    """Replace the entire stored beer list with one item."""
-    payload = json.dumps([beer.model_dump() for beer in beers])
-    _table().put_item(Item={"pk": _PARTITION_VALUE, "beers": payload})
+def save_beers(beers: list[Beer], settings: Settings) -> None:
+    _table(settings).put_item(
+        Item={
+            "pk": "current",
+            "beers": json.dumps([beer.model_dump() for beer in beers]),
+        }
+    )

@@ -2,20 +2,24 @@ import base64
 
 from anthropic import Anthropic
 
-from brews import config
-from brews.models import Beer, Extraction
+from .models import Extraction
+from .settings import Settings
 
-_PROMPT = """This is a photo of a bar's beer list.
-Extract every beer you can read from the top five rows (it's a five row, four
-column grid, with some extra plates beneath that you can ignore).
-For each beer, capture its name, and the brewery, style, ABV, and price
-when they are shown. Leave a field empty if it is not present."""
+_PROMPT = """This is a photo of a bar's beer list. The beers are in a five row,
+four column grid (twenty beers total). For each beer, capture its name, and the
+brewery, style, ABV, and price when they are shown. Leave a field empty if it is
+not present. Ignore the extra plates below the 5x4 grid.
+
+For each beer, also generate a comment about the plate. The comment could include:
+
+    - Things that were ambiguous about the image that you weren't sure about
+    - Any pictures that are on the beer plate
+"""
 
 
-def extract_beers(image_bytes: bytes, media_type: str) -> list[Beer] | None:
-    """Read a beer-list photo with Claude and return the beers it contains."""
-    client = Anthropic(api_key=config.get_anthropic_api_key())
-    data = base64.standard_b64encode(image_bytes).decode("utf-8")
+def beers(image: bytes, media_type: str, settings: Settings) -> Extraction | None:
+    client = Anthropic(api_key=settings.anthropic_api_key.get_secret_value())
+    data = base64.standard_b64encode(image).decode("utf-8")
     response = client.messages.parse(
         model="claude-opus-4-8",
         max_tokens=8192,
@@ -37,4 +41,4 @@ def extract_beers(image_bytes: bytes, media_type: str) -> list[Beer] | None:
         ],
         output_format=Extraction,
     )
-    return response.parsed_output and response.parsed_output.beers or None
+    return response.parsed_output
