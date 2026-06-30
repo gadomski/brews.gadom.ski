@@ -1,12 +1,16 @@
+from __future__ import annotations
+
 import functools
 import json
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import boto3
-from types_boto3_dynamodb.service_resource import DynamoDBServiceResource, Table
 
 from .models import Beer
 from .settings import Settings
+
+if TYPE_CHECKING:
+    from types_boto3_dynamodb.service_resource import DynamoDBServiceResource, Table
 
 
 @functools.cache

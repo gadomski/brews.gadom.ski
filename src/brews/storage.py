@@ -1,13 +1,18 @@
+from __future__ import annotations
+
 import functools
 import os
 import uuid
+from typing import TYPE_CHECKING
 
 import boto3
 from botocore.config import Config
-from types_boto3_s3.client import S3Client
 
 from .models import UploadUrlResponse
 from .settings import Settings
+
+if TYPE_CHECKING:
+    from types_boto3_s3.client import S3Client
 
 _EXPIRES_IN = 900
 

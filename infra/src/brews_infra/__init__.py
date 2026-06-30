@@ -43,12 +43,12 @@ class BrewsStack(Stack):
             "api",
             runtime=Runtime.PYTHON_3_13,
             architecture=Architecture.ARM_64,
-            handler="brews.app.handler",
+            handler="brews.handler.handler",
             timeout=Duration.seconds(30),
             memory_size=512,
             environment={
                 "BREWS_TABLE_NAME": table.table_name,
-                "BREWS_BUCKET_NAME": bucket.bucket_name,
+                "BREWS_IMAGE_BUCKET_NAME": bucket.bucket_name,
                 "ANTHROPIC_API_KEY_PARAM": "/brews/anthropic-api-key",
                 "UPLOAD_TOKEN_PARAM": "/brews/upload-token",
             },
@@ -68,7 +68,7 @@ class BrewsStack(Stack):
                 bundling=BundlingOptions(
                     image=Runtime.PYTHON_3_13.bundling_image,
                     platform="linux/arm64",
-                    command=["bash", "-c", "pip install . --target /asset-output"],
+                    command=["bash", "-c", "pip install '.[lambda]' --target /asset-output"],
                 ),
             ),
         )

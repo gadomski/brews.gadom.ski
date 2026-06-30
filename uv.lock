@@ -230,6 +230,11 @@ dependencies = [
     { name = "python-multipart" },
 ]
 
+[package.optional-dependencies]
+lambda = [
+    { name = "mangum" },
+]
+
 [package.dev-dependencies]
 dev = [
     { name = "basedpyright" },
@@ -246,11 +251,13 @@ requires-dist = [
     { name = "anthropic", specifier = ">=0.111.0" },
     { name = "boto3", specifier = ">=1.43.36" },
     { name = "fastapi", specifier = ">=0.138.0" },
+    { name = "mangum", marker = "extra == 'lambda'", specifier = ">=0.21.0" },
     { name = "pillow", specifier = ">=11.0.0" },
     { name = "pydantic", specifier = ">=2.13.4" },
     { name = "pydantic-settings", specifier = ">=2.14.2" },
     { name = "python-multipart", specifier = ">=0.0.32" },
 ]
+provides-extras = ["lambda"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -526,6 +533,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/db/00/fb7b05656d945a64bbc3cfa2027abe3df51666527d150a442ceb86d0d01c/jsii-1.137.0.tar.gz", hash = "sha256:6ac273e47b2066d29ef2f6c6a4131abddf5cbf9d772626d8b63040a9622302a6", size = 528873, upload-time = "2026-06-22T16:14:43.046Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1b/bb/2f7c032b07243eab1b0df4325fa9ed7a09ee8b1cf742a1a34145a8803024/jsii-1.137.0-py3-none-any.whl", hash = "sha256:e6054da2b760c560b1f145195b71e85e9d87fb67f92270db27331bddb7eaf697", size = 501116, upload-time = "2026-06-22T16:14:41.435Z" },
+]
+
+[[package]]
+name = "mangum"
+version = "0.21.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/89/cb/d9f4d685a0b8eceac10991e15ac471d9568e4e42c2489ae9bf072828c1c2/mangum-0.21.0.tar.gz", hash = "sha256:e31ed72d67f9958fa4379f65df77729906dec6dfa00afa6ed4e06c77833000de", size = 89130, upload-time = "2026-02-01T17:17:42.816Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b7/50/e3c694b8e122551e4557450219283771334dee2ed5734a8398c8b8018c50/mangum-0.21.0-py3-none-any.whl", hash = "sha256:309e48f5c629542516c5106ecf079f4ec08809ed50df882238d98fe1392820c7", size = 17146, upload-time = "2026-02-01T17:17:41.553Z" },
 ]
 
 [[package]]
