@@ -1,15 +1,19 @@
 [project]
 name = "brews-infra"
-version = "0.0.0"
-description = "CDK infrastructure for the Brews backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Pete Gadomski", email = "pete.gadomski@gmail.com" }
+]
 requires-python = ">=3.13"
 dependencies = [
-    "aws-cdk-lib>=2.170.0",
-    "constructs>=10.0.0",
+    "aws-cdk-lib>=2.260.0",
 ]
 
-[dependency-groups]
-dev = ["pytest>=9.0.0"]
+[project.scripts]
+infra = "infra:main"
 
-[tool.pytest.ini_options]
-testpaths = ["test_stack.py"]
+[build-system]
+requires = ["uv_build>=0.11.25,<0.12.0"]
+build-backend = "uv_build"

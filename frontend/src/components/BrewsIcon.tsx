@@ -1,10 +1,5 @@
 import { Icon, type IconProps } from "@chakra-ui/react";
 
-/**
- * The Shoes & Brews logo (a foamy beer glass on a rounded teal tile) as a
- * Chakra `Icon`. It keeps its own multicolor palette, so the `color` prop does
- * not recolor it; use `size` or `boxSize` to scale it.
- */
 export function BrewsIcon(props: IconProps) {
   return (
     <Icon asChild {...props}>

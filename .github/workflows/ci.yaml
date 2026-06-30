@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v6
+      - name: Install dependencies
+        run: uv sync
+      - name: Lint
+        run: uv run ruff check
+      - name: Format check
+        run: uv run ruff format --check
+      - name: Start services
+        run: docker compose up -d dynamodb s3
+      - name: Wait for services
+        run: |
+          until curl -s -o /dev/null http://localhost:8001; do sleep 1; done
+          until curl -s -o /dev/null http://localhost:5000; do sleep 1; done
+      - name: Test
+        run: uv run pytest
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - name: Enable Corepack
+        run: corepack enable
+      - uses: actions/setup-node@v6
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+      - name: Format check
+        run: pnpm format:check
+      - name: Build
+        run: pnpm build

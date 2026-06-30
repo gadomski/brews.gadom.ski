@@ -1,38 +1,33 @@
 from pathlib import Path
 
 from aws_cdk import BundlingOptions, CfnOutput, Duration, Stack
-from aws_cdk import aws_apigatewayv2 as apigwv2
-from aws_cdk import aws_apigatewayv2_integrations as integrations
-from aws_cdk import aws_dynamodb as dynamodb
-from aws_cdk import aws_iam as iam
-from aws_cdk import aws_lambda as lambda_
-from aws_cdk import aws_s3 as s3
-from constructs import Construct
+from aws_cdk.aws_apigatewayv2 import HttpApi
+from aws_cdk.aws_apigatewayv2_integrations import HttpLambdaIntegration
+from aws_cdk.aws_dynamodb import Attribute, AttributeType, Billing, TableV2
+from aws_cdk.aws_iam import PolicyStatement
+from aws_cdk.aws_lambda import Architecture, Code, Function, Runtime
+from aws_cdk.aws_s3 import Bucket, CorsRule, HttpMethods
 
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 
 class BrewsStack(Stack):
-    """Backend infrastructure: DynamoDB, the FastAPI Lambda, and the HTTP API."""
+    def __init__(self, scope, id, **kwargs):
+        super().__init__(scope, id, **kwargs)
 
-    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
-        super().__init__(scope, construct_id, **kwargs)
-
-        table = dynamodb.TableV2(
+        table = TableV2(
             self,
-            "BeerTable",
-            partition_key=dynamodb.Attribute(
-                name="pk", type=dynamodb.AttributeType.STRING
-            ),
-            billing=dynamodb.Billing.on_demand(),
+            "table",
+            partition_key=Attribute(name="pk", type=AttributeType.STRING),
+            billing=Billing.on_demand(),
         )
 
-        bucket = s3.Bucket(
+        bucket = Bucket(
             self,
-            "ImageBucket",
+            "bucket",
             cors=[
-                s3.CorsRule(
-                    allowed_methods=[s3.HttpMethods.PUT],
+                CorsRule(
+                    allowed_methods=[HttpMethods.PUT],
                     allowed_origins=[
                         "https://brews.gadom.ski",
                         "http://localhost:5173",
@@ -43,11 +38,11 @@ class BrewsStack(Stack):
             ],
         )
 
-        function = lambda_.Function(
+        function = Function(
             self,
-            "ApiFunction",
-            runtime=lambda_.Runtime.PYTHON_3_13,
-            architecture=lambda_.Architecture.ARM_64,
+            "api",
+            runtime=Runtime.PYTHON_3_13,
+            architecture=Architecture.ARM_64,
             handler="brews.app.handler",
             timeout=Duration.seconds(30),
             memory_size=512,
@@ -57,7 +52,7 @@ class BrewsStack(Stack):
                 "ANTHROPIC_API_KEY_PARAM": "/brews/anthropic-api-key",
                 "UPLOAD_TOKEN_PARAM": "/brews/upload-token",
             },
-            code=lambda_.Code.from_asset(
+            code=Code.from_asset(
                 str(_PROJECT_ROOT),
                 exclude=[
                     ".venv",
@@ -71,7 +66,7 @@ class BrewsStack(Stack):
                     "**/__pycache__",
                 ],
                 bundling=BundlingOptions(
-                    image=lambda_.Runtime.PYTHON_3_13.bundling_image,
+                    image=Runtime.PYTHON_3_13.bundling_image,
                     platform="linux/arm64",
                     command=["bash", "-c", "pip install . --target /asset-output"],
                 ),
@@ -82,7 +77,7 @@ class BrewsStack(Stack):
         bucket.grant_read_write(function)
 
         function.add_to_role_policy(
-            iam.PolicyStatement(
+            PolicyStatement(
                 actions=["ssm:GetParameter"],
                 resources=[
                     self.format_arn(
@@ -92,7 +87,7 @@ class BrewsStack(Stack):
             )
         )
         function.add_to_role_policy(
-            iam.PolicyStatement(
+            PolicyStatement(
                 actions=["kms:Decrypt"],
                 resources=["*"],
                 conditions={
@@ -103,12 +98,10 @@ class BrewsStack(Stack):
             )
         )
 
-        http_api = apigwv2.HttpApi(
+        http_api = HttpApi(
             self,
             "HttpApi",
-            default_integration=integrations.HttpLambdaIntegration(
-                "ApiIntegration", function
-            ),
+            default_integration=HttpLambdaIntegration("ApiIntegration", function),  # pyright: ignore[reportArgumentType]
         )
 
         CfnOutput(self, "ApiUrl", value=http_api.url or "")
