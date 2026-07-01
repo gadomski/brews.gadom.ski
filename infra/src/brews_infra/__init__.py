@@ -68,7 +68,11 @@ class BrewsStack(Stack):
                 bundling=BundlingOptions(
                     image=Runtime.PYTHON_3_13.bundling_image,
                     platform="linux/arm64",
-                    command=["bash", "-c", "pip install '.[lambda]' --target /asset-output"],
+                    command=[
+                        "bash",
+                        "-c",
+                        "pip install '.[lambda]' --target /asset-output",
+                    ],
                 ),
             ),
         )
